@@ -121,8 +121,6 @@ body {
     text-align: center;
     display: flex;
     align-items: center;
-    
-
 }
 
 .nav_links {
@@ -159,6 +157,7 @@ body {
 
 .hero_title {
     font-size: 3rem;
+    margin-right: 25%;
 }
 
 .about {
@@ -485,7 +484,8 @@ body {
 
 .parrafo{
     text-align: center;
-    margin-top: 10px;
+    margin-top: 30px;
+    font-size: 140%;
 }
 .productos {
     text-align: center;
@@ -512,7 +512,7 @@ body {
 .contact_title{
     text-align: center;
     margin-top: 100px;
-    font-size: 2.5rem;;
+    font-size: 3rem;;
 }
 
 .line {
@@ -520,7 +520,6 @@ body {
     width: 100%;
     height: 10px;
 }
-
 .instalaciones {
     background: radial-gradient(circle at top left, transparent 25%, #ccf9fd 25.5%, #ccf9fd 36%, transparent 37%, transparent 100%), radial-gradient(circle at bottom right, transparent 34%, #ccf9fd 34.5%, #ccf9fd 45.5%, transparent 46%, transparent 100%);
     background-size: 3em 3em;
@@ -710,6 +709,25 @@ body {
     color: white;
   }
 
+  .Fondo{
+    background-color:black;
+    background-image:
+    radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 40px),
+    radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 30px),
+    radial-gradient(white, rgba(255,255,255,.1) 2px, transparent 40px),
+    radial-gradient(rgba(255,255,255,.4), rgba(255,255,255,.1) 2px, transparent 30px);
+    background-size: 550px 550px, 350px 350px, 250px 250px, 150px 150px;
+    background-position: 0 0, 40px 60px, 130px 270px, 70px 100px;
+  }
+
+  .nav_item {
+    margin-left: 50px;
+    margin-top: 50px;
+  }
+  .nav_back_link {
+    color: #fff;
+    text-decoration: none;
+}
 @media (max-width:800px) {
     .nav_menu {
         display: block;
@@ -807,5 +825,9 @@ body {
 
     .footer_imgG {
         margin-left: 35%;
+    }
+    .Registro{
+        width: 250px;
+        height: 700px;
     }
 }
