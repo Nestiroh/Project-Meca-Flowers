@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+from .db import MYSQL
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -63,17 +64,7 @@ WSGI_APPLICATION = 'mecaFlowersProject.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'mydb',
-        'USER': 'root',
-        'PASSWORD': 'esteban2005',
-        'HOST': 'localhost',
-        'PORT': '3306'
-    }
-}
-
+DATABASES = MYSQL
 
 
 # Password validation
