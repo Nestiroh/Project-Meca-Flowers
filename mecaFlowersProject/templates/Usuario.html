@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -5,14 +6,15 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Meca Controller</title>
-    <link rel="shortcut icon" href="./Imagenes/Icono.png" type="image/x-icon">
-    <link rel="stylesheet" href="./CSS/normalice.css">
-    <link rel="stylesheet" href="./CSS/estilos.css">
+    {% load static %}
+    <link rel="shortcut icon" href="{% static 'Imagenes/Icono.png' %}" type="image/x-icon">
+    <link rel="stylesheet" href="{% static 'CSS/estilos.css' %}">
+    <link rel="stylesheet" href="{% static 'CSS/normalice.css' %}">
 </head>
 <body class="Fondo">
     <main >
       <li class="nav_item">
-        <a href="PaginaPrincipal.html" class="nav_back_link">Menú Principal</a>
+        <a href="{% url 'menu_inicio' %}" class="nav_back_link">Menú Principal</a>
     </li>
 
         <section class="Registro">   
