@@ -5,37 +5,38 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Meca Controller</title>
-    <link rel="shortcut icon" href="./Imagenes/Icono.png" type="image/x-icon">
-    <link rel="stylesheet" href="./CSS/normalice.css">
-    <link rel="stylesheet" href="./CSS/estilos.css">
+    {% load static %}
+    <link rel="shortcut icon" href="{% static 'Imagenes/Icono.png' %}" type="image/x-icon">
+    <link rel="stylesheet" href="{% static 'CSS/estilos.css' %}">
+    <link rel="stylesheet" href="{% static 'CSS/normalice.css' %}">
 </head>
 <body>
     <header class="hero">
         <nav class="nav container">
             <div class="nav_logo">
-                <a href="Usuario.html"><img  src="Imagenes/usuario.svg" class="nav_title"></a>
+                <a href="{% url 'login' %}"><img src="{% static 'Imagenes/usuario.svg' %}" class="nav_title"></a>
                 <h2 class="nav_title">Meca flowers & Green SAS</h2>
             </div>
             <ul class="nav_link nav_link-menu">
                 <li class="nav_items">
-                    <a href="PaginaPrincipal.html" class="nav_links">Inicio</a>
+                    <a href="{% url 'menu_inicio' %}" class="nav_links">Inicio</a>
                 </li>
                 <li class="nav_items">
-                    <a href="Productos.html" class="nav_links">Productos</a>
+                    <a href="{% url 'productos' %}" class="nav_links">Productos</a>
                 </li>
                 <li class="nav_items">
-                    <a href="Instalaciones.html" class="nav_links">Instalaciones</a>
+                    <a href="{% url 'instala' %}" class="nav_links">Instalaciones</a>
                 </li>
                 <li class="nav_items">
-                    <a href="Contactenos.html" class="nav_links">Contactenos</a>
+                    <a href="{% url 'contactenos' %}" class="nav_links">Contactenos</a>
                 </li>
                 <li class="nav_items">
-                    <a href="Clasificacion_P.html" class="nav_links">Clasificación</a>
+                    <a href="{% url 'clasifica' %}" class="nav_links">Clasificación</a>
                 </li>
-                <img src="Imagenes/cerrar.svg" class="nav_close">
+                <img src="{% static 'Imagenes/cerrar.svg' %}" class="nav_close">
             </ul>
             <div class="nav_menu">
-                <img src="Imagenes/menu.svg" class="nav_img">
+                <img src="{% static 'Imagenes/menu.svg' %}" class="nav_img">
             </div>
         </nav>
         <section class="hero_container container">
@@ -44,21 +45,21 @@
     </header>
     <main>
         <section class="container about">
-            <h2 class="subtitle">¿Por qué elegir la flor de meca flowers?</h2>
+            <h2 class="subtitle">¿Por qué Elegir la Flor de Meca Flowers?</h2>
             <p class="about_paragraph"></p>
             <div class="about_main">
                 <article class="about_icons">
-                    <img src="Imagenes/tiempo.svg" class="about_icon">
+                    <img src="{% static 'Imagenes/tiempo.svg' %}" class="about_icon">
                     <h3 class="about_title">Experiencia</h3>
                     <p class="about_paragraph">Más de 10 años de experiencia en el sector</p>
                 </article>
                 <article class="about_icons">
-                    <img src="Imagenes/calidad.svg" class="about_icon">
+                    <img src="{% static 'Imagenes/calidad.svg' %}" class="about_icon">
                     <h3 class="about_title">Calidad</h3>
                     <p class="about_paragraph">Productos frescos y de alta calidad</p>
                 </article>
                 <article class="about_icons">
-                    <img src="Imagenes/precio.svg" class="about_icon">
+                    <img src="{% static 'Imagenes/precio.svg' %}" class="about_icon">
                     <h3 class="about_title">Precios</h3>
                     <p class="about_paragraph">Precios competitivos y ofertas especiales</p>
                 </article>
@@ -75,12 +76,12 @@
                         en los cuales destacamos siempre por la calidad y el rendimiento, esto en todos los ámbitos de la empresa.</p>
                 </div>
                 <figure class="knowledge_picture">
-                    <img src="Imagenes/mision.jpg" class="knowledge_img1">
+                    <img src="{% static 'Imagenes/mision.jpg' %}" class="knowledge_img1">
                 </figure>
             </div>
             <div class="knowledge_container container">
                 <figure class="knowledge_picture">
-                    <img src="Imagenes/vision.jpg" class="knowledge_img2">
+                    <img src="{% static 'Imagenes/vision.jpg' %}" class="knowledge_img2">
                 </figure>
                 <div class="knowledge_texts">
                     <h2 class="subtitle">Vision de Meca Flowers</h2>
@@ -105,12 +106,12 @@
                         la aura de la empresa.</p>
                 </div>
                 <figure class="knowledge_picture">
-                    <img src="Imagenes/colores.jpg" class="knowledge_img3">
+                    <img src="{% static 'Imagenes/colores.jpg' %}" class="knowledge_img3">
                 </figure>
             </div>
         </section>
     </main>
-    <script src="JS/menu.js"></script>
+    <script src="{% static 'JS/menu.js' %}"></script>
     <footer class="footer">
         <section class="footer_container container">
             <nav class="nav nav--footer">
@@ -131,20 +132,19 @@
                     <li class="nav_items">
                         <a href="Clasificacion_P.html" class="nav_links">Clasificación</a>
                     </li>
-                    <img src="Imagenes/cerrar.svg" class="nav_close">
+                    <img src="{% static 'Imagenes/cerrar.svg' %}" class="nav_close">
                 </ul>
             </nav>
-            <img src="Imagenes/IconoG.png" class="footer_imgG" >
+            <img src="{% static 'Imagenes/IconoG.png' %}" class="footer_imgG" >
         </section>
         <section class="footer_copy container">
             <div class="footer_social">
-                <a href="#" class="footer_icons"><img src="Imagenes/watsap.svg" class="footer_img"></a>
-                <a href="#" class="footer_icons"><img src="Imagenes/gmail.svg" class="footer_img"></a>
-                <a href="#" class="footer_icons"><img src="Imagenes/telefono.svg" class="footer_img"></a>
+                <a href="#" class="footer_icons"><img src="{% static 'Imagenes/watsap.svg' %}" class="footer_img"></a>
+                <a href="#" class="footer_icons"><img src="{% static 'Imagenes/gmail.svg' %}" class="footer_img"></a>
+                <a href="#" class="footer_icons"><img src="{% static 'Imagenes/telefono.svg' %}" class="footer_img"></a>
             </div>
             <h3 class="footer_copyright">Derechos reservados &copy; Meca Flowers</h3>
         </section>
     </footer>
 </body>
-
 </html>
