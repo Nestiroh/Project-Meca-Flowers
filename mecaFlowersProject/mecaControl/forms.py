@@ -1,4 +1,6 @@
 from django import forms
-from .models import Usuario
 
-#class LoginForm(forms.Form)
+class LoginForm(forms.Form):
+    email = forms.EmailField()
+    contrasena = forms.CharField(widget=forms.PasswordInput)
+
