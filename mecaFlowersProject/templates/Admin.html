@@ -61,37 +61,49 @@
   
         </div>
         
+        <div id=0 onclick="mostrarOcultar(0)" class="pag-inicio">
+            <div class="input-txt" >
+                <h2 class="txt">¡Bienvenido/a, {{ nombre_usuario }}!</h2>
+                <p class="txt-2">Has ingresado con rol: <strong>{{ rol_usuario }}</p>
+              </div>
+        </div>
         <div class="pag-admin" id=1 onclik="mostrarOcultar(1);">
-           
             <div class="user">
                 <div>
-                    <h1 class="Txt">Agregar Usuario</h1>
-                    <img src="{% static 'Imagenes/AgregarU.svg' %}" class="icono" alt="" onclick="mostrarCampos('agregar')">
-                    <div class="form" id="agregar">
-                        <input id="nombreUsuario" class="input-txt" placeholder="Nombre Usuario" required="" type="text">
-                        <span class="input-txt-border"></span>
-                        <input id="correo" class="input-txt" placeholder="Correo" required="" type="text">
-                        <span class="input-txt-border"></span>
-                        <input id="contraseña" class="input-txt" placeholder="Contraseña" required="" type="text">
-                        <span class="input-txt-border"></span>
-                        <label for="rol">Rol:</label>
-                        <select id="rol" class="input-txt" required="">
-                            <option value="" selected>Ninguno</option>
-                            <option value="Adminsitrador">Adminsitrador</option>
-                            <option value="Secretario">Secretario</option>
-                            <option value="Conductor">Conductor</option>
-                        </select>
-                        <span class="input-txt-border"></span>
-                        <input id="telefono" class="input-txt" placeholder="Teléfono" required="" type="text">
-                        <span class="input-txt-border"></span>
-                    </div>
+                  <h1 class="Txt">Agregar Usuario</h1>
+                  <img src="{% static 'Imagenes/AgregarU.svg' %}" class="icono" alt="" onclick="mostrarCampos('agregar')">
+                  <div class="form" id="agregar">
+                    <form id="formularioUsuario" method="POST" action="{% url 'agregar_usuario' %}">
+                      {% csrf_token %}
+                      <input type="text" id="nombreUsuario" class="input-txt" name="nombre_usuario" placeholder="Nombre Usuario" required>
+                      <input type="email" id="correo" class="input-txt" name="correo" placeholder="Correo" required>
+                      <input type="password" id="contraseña" class="input-txt" name="contraseña" placeholder="Contraseña" required>
+                      <label for="rol" class="input-txt-1">Rol</label>
+                      <select id="rol" class="input-txt" name="rol" required="">
+                        <option value="" selected>Ninguno</option>
+                        <option value="Administrador">Administrador</option>
+                        <option value="Secretario">Secretario</option>
+                        <option value="Conductor">Conductor</option>
+                      </select>
+                      <input type="text" id="telefono" class="input-txt" name="telefono" placeholder="Teléfono" required>
+                      {% if messages %}
+                      <ul class="mensajes">  {% for message in messages %}
+                              <li class="mensaje {{ message.tags }}">  {{ message }}
+                              </li>
+                          {% endfor %}
+                      </ul>
+                  {% endif %}                      
+                      <button type="submit" class="button">Realizar Cambios</button>
+                    </form>
                 </div>
+              </div>
                 <div>
                     <h1 class="Txt">Eliminar Usuario</h1>
                     <img src="{% static 'Imagenes/EliminarU.svg' %}" class="icono" alt="" onclick="mostrarCampos('eliminar')">
                     <div class="form" id="eliminar">
                         <input id="correoUsuario" class="input-txt" placeholder="Correo Del Usuario" required="" type="text">
                         <span class="input-txt-border"></span>
+                        <p class="txt">{{ mensaje }}</p>
                     </div>
                 </div>
                 <div>
@@ -107,7 +119,6 @@
                     </div>
                 </div>
             </div>
-            
         </div>
         <div class="pag-admin" id=2 onclik="mostrarOcultar(2);">
             <div class="input-search">

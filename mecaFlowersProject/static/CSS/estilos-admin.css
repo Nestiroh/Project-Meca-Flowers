@@ -147,6 +147,10 @@ body {
   justify-content: left;
 }
 
+.pag-inicio{
+  margin-left: 300px;
+  margin-top: 250px;
+}
 .pag-admin {
   display: none;
 }
@@ -159,8 +163,14 @@ body {
   --input-hovered-color: #4985e01f;
   position: relative;
   width: var(--width-of-input);
+  display: none; 
 }
-
+.txt {
+  font-size: 3rem;
+}
+.txt-2{
+  font-size: 2rem;
+}
 .input-txt {
   color: #110036;
   font-size: 0.9rem;
@@ -171,6 +181,12 @@ body {
   padding-block: 0.7em;
   border: none;
   border-bottom: var(--border-height) solid var(--border-before-color);
+}
+.input-txt-1 {
+  color: #a9a9a9;
+  font-size: 14px;
+  margin-left: 8px;
+  font-family: Arial, sans-serif;
 }
 
 .input-txt-border {
@@ -518,6 +534,3 @@ body {
   margin-left: 25em;
 }
 
-.form {
-  display: none; 
-}

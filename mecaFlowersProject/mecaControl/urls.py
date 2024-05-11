@@ -16,4 +16,7 @@ urlpatterns = [
 
     path('adminis/', views.adminis, name='adminis'),
     
+    path('agregar_usuario/', views.agregar_usuario, name='agregar_usuario'),
+
+    path('eliminar_usuario/', views.agregar_usuario, name='eliminar_usuario'),
 ]
