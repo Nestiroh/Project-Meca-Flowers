@@ -57,11 +57,12 @@ function mostrarCampos(identificador) {
     campos.style.display = 'block';
 }
 
-function resetFormValues() {
+function resetFormValues() { //Resetear los valores a 0 de la administracion de usuarios
     document.getElementById('nombreUsuario').value = '';
     document.getElementById('correo').value = '';
     document.getElementById('contraseña').value = '';
-    document.getElementById('rol').selectedIndex = 0;
+    const ningunoOption = document.querySelector('#rol option[value=""]');
+    ningunoOption.selected = true;
     document.getElementById('telefono').value = '';
     
     document.getElementById('correoUsuario').value = '';
@@ -70,3 +71,49 @@ function resetFormValues() {
     document.getElementById('correoEdit').value = '';
     document.getElementById('contraseñaEdit').value = '';
 }
+
+$(document).ready(function() {//Agregar usuario con AJAX
+    $('#formularioUsuario').submit(function(event) {
+        event.preventDefault(); // Evitar el envío normal del formulario
+
+        var formData = $(this).serialize();
+
+        // Realizar la petición Ajax con la URL correspondiente para agregar usuario
+        $.ajax({
+            type: 'POST',
+            url: '/mecaControl/agregar_usuario/',  // URL de la vista para agregar usuario
+            data: formData,
+            success: function(response) {
+                // Manejar la respuesta aquí, por ejemplo mostrar un mensaje de éxito
+                alert(response.message);
+                resetFormValues();
+            },
+            error: function(xhr, status, error) {
+                // Manejar errores si los hay
+                console.error(xhr.responseText);
+            }
+        });
+    });
+
+    $('#formularioEliminarUsuario').submit(function(event) {//Eliminar usuario con AJAX
+        event.preventDefault(); // Evitar el envío normal del formulario
+
+        var formData = $(this).serialize();
+
+        // Realizar la petición Ajax con la URL correspondiente para eliminar usuario
+        $.ajax({
+            type: 'POST',
+            url: '/mecaControl/eliminar_usuario/',  // URL de la vista para eliminar usuario
+            data: formData,
+            success: function(response) {
+                // Manejar la respuesta aquí, por ejemplo mostrar un mensaje de éxito
+                alert(response.message);
+                resetFormValues();
+            },
+            error: function(xhr, status, error) {
+                // Manejar errores si los hay
+                console.error(xhr.responseText);
+            }
+        });
+    });
+});

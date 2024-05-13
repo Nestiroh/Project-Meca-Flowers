@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.urls import reverse
 from django.contrib.auth.models import User
 from django.http import JsonResponse
-    
+from django.shortcuts import get_object_or_404    
 
 def login(request):
     error_message = None
@@ -19,11 +19,12 @@ def login(request):
 
             try:
                 usuario_bd = Usuario.objects.get(email=email)
-                
+    
                 if contrasena == usuario_bd.contrasena:
                     request.session['user_id'] = usuario_bd.id_usuario
-
-                    
+               
+                     
+                
                     return redirect(reverse('adminis') + f'?nombre_usuario={usuario_bd.nombre}&rol_usuario={usuario_bd.rol_usuario}')
                 else:
                     error_message = "Usuario o contraseña incorrectos."
@@ -36,83 +37,35 @@ def login(request):
 
     return render(request, 'Usuario.html', {'form': form, 'error_message': error_message})
 
-
 def agregar_usuario(request):
     if request.method == 'POST':
-        # Obtener datos del formulario
-        nombre_usuario = request.POST.get('nombre_usuario')
-        correo = request.POST.get('correo')
-        contraseña = request.POST.get('contraseña')
-        rol = request.POST.get('rol')
-        telefono = request.POST.get('telefono')
+        nombre = request.POST.get('nombre_usuario')  # Corregido
+        email = request.POST.get('correo')  # Corregido
+        contrasena = request.POST.get('contraseña')  # Corregido
+        rol_usuario = request.POST.get('rol')  # Corregido
+        telefono = request.POST.get('telefono')  # Corregido
 
-        if nombre_usuario and correo and contraseña and rol and telefono:
-            nuevo_usuario = Usuario(
-                nombre=nombre_usuario,
-                email=correo,
-                contrasena=contraseña,  
-                rol_usuario=rol,
-                telefono=telefono
-            )
-            
-            nuevo_usuario.save()
-            messages.add_message(request, messages.SUCCESS, 'Usuario agregado correctamente.')
-               
-            # Respuesta JSON exitosa con mensaje personalizado
-            respuesta = {     
-            "exito": True,
-            }
-            return JsonResponse(respuesta)
-        
-        else:
-            # Respuesta JSON con errores y mensaje personalizado
-            respuesta = {
-                "exito": False,
-                "mensaje": "Hubo un problema al agregar el usuario. Verifica los campos e intenta nuevamente.",
-                "errores": {
-                    "nombre_usuario": "Este campo es obligatorio." if not nombre_usuario else "",
-                    "correo": "Este campo es obligatorio." if not correo else "",
-                    "contraseña": "Este campo es obligatorio." if not contraseña else "",
-                    "rol": "Este campo es obligatorio." if not rol else "",
-                    "telefono": "Este campo es obligatorio." if not telefono else "",
-                }
-            }
-        
-        return JsonResponse(respuesta)
+        usuario = Usuario(nombre=nombre, email=email, contrasena=contrasena, rol_usuario=rol_usuario, telefono=telefono)  # Corregido
+        usuario.save()
+
+        return JsonResponse({'message': 'Usuario agregado correctamente'}, status=200)
     else:
-        return render(request, 'Admin.html')
+        return JsonResponse({'error': 'Método no permitido'}, status=405)
 
 def eliminar_usuario(request):
     if request.method == 'POST':
-        correo_usuario = request.POST.get('correo')
-        
-        if correo_usuario:
-            try:
-                usuario = User.objects.get(email=correo_usuario)
-                usuario.delete()
-                respuesta = {
-                    'exito': True,
-                    'mensaje': f'Usuario con correo {correo_usuario} eliminado correctamente.'
-                }
-            except User.DoesNotExist:
-                respuesta = {
-                    'exito': False,
-                    'mensaje': f'No se encontró ningún usuario con el correo {correo_usuario}.'
-                }
-        else:
-            respuesta = {
-                'exito': False,
-                'mensaje': 'El correo del usuario es necesario para eliminarlo.'
-            }
-        
-        return JsonResponse(respuesta)
+        correo_usuario = request.POST.get('correo_usuario')
+        try:
+            usuario = Usuario.objects.get(email=correo_usuario)
+            usuario.delete()
+            mensaje = "Usuario eliminado correctamente."
+            return JsonResponse({'message': mensaje})
+        except Usuario.DoesNotExist:
+            mensaje = "El usuario no existe."
+            return JsonResponse({'message': mensaje})
     else:
-        
-        respuesta = {
-            'exito': False,
-            'mensaje': 'Método no permitido. Utiliza una solicitud POST para eliminar un usuario.'
-        }
-        return JsonResponse(respuesta, status=405)  # Método no permitido
+        mensaje = "Método no permitido."
+        return JsonResponse({'message': mensaje})
 
 def menu_inicio(request):
     return render(request, 'PaginaPrincipal.html', {})
