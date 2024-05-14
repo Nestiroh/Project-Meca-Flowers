@@ -4,7 +4,13 @@ from .models import Usuario
 from django.contrib import messages
 from django.urls import reverse
 from django.http import JsonResponse
-import json
+
+def login_required(view_func):
+    def _wrapped_view(request, *args, **kwargs):
+        if 'user_id' not in request.session:
+            return redirect(reverse('login'))
+        return view_func(request, *args, **kwargs)
+    return _wrapped_view
 
 def login(request):
     error_message = None
@@ -78,6 +84,7 @@ def contactenos(request):
 def clasifica(request):
     return render(request, 'Clasificacion_P.html', {})
 
+@login_required
 def adminis(request):
     user_id = request.session.get('user_id')
     if user_id:
@@ -85,9 +92,12 @@ def adminis(request):
             usuario_bd = Usuario.objects.get(id_usuario=user_id)
             nombre_usuario = usuario_bd.nombre
             rol_usuario = usuario_bd.rol_usuario
+
+            # Eliminar la clave 'user_id' de la sesión al salir de la página adminis
+            request.session.pop('user_id', None)
+
             return render(request, 'Admin.html', {'nombre_usuario': nombre_usuario, 'rol_usuario': rol_usuario})
         except Usuario.DoesNotExist:
-           
             messages.error(request, 'Error al recuperar los datos del usuario.')
             return render(request, 'Admin.html', {'error_message': 'Error al recuperar los datos del usuario.'})
     else:
