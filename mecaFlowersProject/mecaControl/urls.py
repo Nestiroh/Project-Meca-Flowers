@@ -16,4 +16,13 @@ urlpatterns = [
 
     path('adminis/', views.adminis, name='adminis'),
     
+    path('agregar_usuario/', views.agregar_usuario, name='agregar_usuario'),
+
+    path('eliminar_usuario/', views.eliminar_usuario, name='eliminar_usuario'),
+    
+    path('cargar_usuarios/', views.cargar_usuarios, name='cargar_usuarios'),
+
+    path('obtener_usuario/<int:usuario_id>/', views.obtener_usuario, name='obtener_usuario'),
+    
+    path('guardar_usuario/', views.guardar_usuario, name='guardar_usuario'),
 ]

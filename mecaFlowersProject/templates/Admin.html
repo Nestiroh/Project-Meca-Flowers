@@ -14,11 +14,12 @@
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous">
     </script>
     <link rel="stylesheet" href="{% static 'CSS/estilos-admin.css' %}">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="{% static 'js/admin.js' %}" defer></script>
     <link rel="shortcut icon" href="{% static 'Imagenes/Icono.png' %}" type="image/x-icon">
 </head>
 
-<body>
+<body> 
     <section class="dividir">
         <div class="menu-dashboard">
             <div class="top-menu">
@@ -58,57 +59,89 @@
                     <span>Salir</span>
                 </div>
             </div>
+  
         </div>
-
+        
+        <div id=0 onclick="mostrarOcultar(0)" class="pag-inicio">
+            <div class="input-txt" >
+                <h2 class="txt">¡Bienvenido/a, {{ nombre_usuario }}!</h2>
+                <p class="txt-2">Has ingresado con rol: <strong>{{ rol_usuario }}</p>
+              </div>
+        </div>
         <div class="pag-admin" id=1 onclik="mostrarOcultar(1);">
-
             <div class="user">
                 <div>
-                    <h1 class="Txt">Agregar Usuario</h1>
-                    <img src="{% static 'Imagenes/AgregarU.svg' %}" class="icono" alt="">
-                    <div class="form">
-                        <input class="input-txt" placeholder="Nombre Usuario" required="" type="text">
-                        <span class="input-txt-border"></span>
-                    </div>
-                    <div class="form">
-                        <input class="input-txt" placeholder="Correo" required="" type="text">
-                        <span class="input-txt-border"></span>
-                    </div>
-                    <div class="form">
-                        <input class="input-txt" placeholder="Contraseña" required="" type="text">
-                        <span class="input-txt-border"></span>
-                    </div>
+                  <h1 class="Txt">Agregar Usuario</h1>
+                  <img src="{% static 'Imagenes/AgregarU.svg' %}" class="icono" alt="" onclick="mostrarCampos('agregar')">
+                  <div class="form" id="agregar">
+                    <form id="formularioUsuario" method="POST" action="/mecaControl/agregar_usuario/">
+                      {% csrf_token %}
+                      <input type="text" id="nombreUsuario" class="input-txt" name="nombre_usuario" placeholder="Nombre Usuario" required>
+                      <input type="email" id="correo" class="input-txt" name="correo" placeholder="Correo" required>
+                      <input type="password" id="contraseña" class="input-txt" name="contraseña" placeholder="Contraseña" required>
+                      <label for="rol" class="input-txt-1">Rol</label>
+                      <select id="rol" class="input-txt" name="rol" required="">
+                        <option value="" selected>Ninguno</option>
+                        <option value="Administrador">Administrador</option>
+                        <option value="Secretario">Secretario</option>
+                        <option value="Conductor">Conductor</option>
+                      </select>
+                      <input type="text" id="telefono" class="input-txt" name="telefono" placeholder="Teléfono" required>            
+                      <button type="submit" class="button">Realizar Cambios</button>
+                    </form>
                 </div>
-                <div>
-                    <h1 class="Txt">Eliminar Usuario</h1>
-                    <img src="{% static 'Imagenes/EliminarU.svg' %}" class="icono" alt="">
-                    <div class="form">
-                        <input class="input-txt" placeholder="Nombre Usuario" required="" type="text">
+              </div>
+              <div>
+                <h1 class="Txt">Eliminar Usuario</h1>
+                <img src="{% static 'Imagenes/EliminarU.svg' %}" class="icono" alt="" onclick="mostrarCampos('eliminar')">
+                <div class="form" id="eliminar">
+                    <form id="formularioEliminarUsuario" method="POST" action="/mecaControl/eliminar_usuario/">
+                        {% csrf_token %}
+                        <input id="correoUsuario" class="input-txt" name="correo_usuario" placeholder="Correo Del Usuario" required="" type="text">
                         <span class="input-txt-border"></span>
-                    </div>
+                        <button type="submit" class="button">Eliminar Usuario</button>
+                    </form>
                 </div>
-                <div>
-                    <h1 class="Txt">Editar Usuario</h1>
-                    <img src="{% static 'Imagenes/EditarU.svg' %}" class="icono" alt="">
-                    <div class="form">
-                        <input class="input-txt" placeholder="Nombre Usuario" required="" type="text">
-                        <span class="input-txt-border"></span>
-                    </div>
-                    <div class="form">
-                        <input class="input-txt" placeholder="Correo" required="" type="text">
-                        <span class="input-txt-border"></span>
-                    </div>
-                    <div class="form">
-                        <input class="input-txt" placeholder="Contraseña" required="" type="text">
-                        <span class="input-txt-border"></span>
-                    </div>
-                </div>
-
-
             </div>
-            <button class="button">Realizar Cambios</button>
-
+        <div>
+            <h1 class="Txt">Editar Usuario</h1>
+            <img src="{% static 'Imagenes/EditarU.svg' %}" class="icono" alt="" onclick="mostrarCampos('editar')">
+            <div class="form" id="editar">
+                <table  id="tablaUsuarios">
+                    <thead> 
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Email</th>
+                            <th>Rol</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
         </div>
+    </div>
+</div>
+<div id="editarUsuarioModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Editar Usuario</h2>
+        <form id="formularioEditarUsuario">
+            {% csrf_token %}
+            <input type="hidden" id="editarIdUsuario" name="id_usuario">
+            <label for="editarNombre">Nombre:</label>
+            <input type="text" id="editarNombre" name="nombre" required>
+            <label for="editarEmail">Email:</label>
+            <input type="email" id="editarEmail" name="email" required>
+            <label for="editarRol">Rol:</label>
+            <select id="editarRol" name="rol_usuario" required>
+                <option value="">Seleccione un rol</option>
+                <option value="Administrador">Administrador</option>
+                <option value="Secretario">Secretario</option>
+                <option value="Conductor">Conductor</option>
+            </select>
+            <button type="submit">Guardar</button>
+        </form>
+    </div>
         <div class="pag-admin" id=2 onclik="mostrarOcultar(2);">
             <div class="input-search">
                 <i class='bx bx-search'></i>
