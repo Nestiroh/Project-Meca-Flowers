@@ -75,7 +75,7 @@
                   <img src="{% static 'Imagenes/AgregarU.svg' %}" class="icono" alt="" onclick="mostrarCampos('agregar')">
                   <div class="form" id="agregar">
                     <form id="formularioUsuario" method="POST" action="/mecaControl/agregar_usuario/">
-                      {% csrf_token %}
+                        {% csrf_token %}
                       <input type="text" id="nombreUsuario" class="input-txt" name="nombre_usuario" placeholder="Nombre Usuario" required>
                       <input type="email" id="correo" class="input-txt" name="correo" placeholder="Correo" required>
                       <input type="password" id="contraseña" class="input-txt" name="contraseña" placeholder="Contraseña" required>
@@ -103,20 +103,45 @@
                     </form>
                 </div>
             </div>
-                <div>
-                    <h1 class="Txt">Editar Usuario</h1>
-                    <img src="{% static 'Imagenes/EditarU.svg' %}" class="icono" alt="" onclick="mostrarCampos('editar')">
-                    <div class="form" id="editar">
-                        <input id="nombreUsuarioEdit" class="input-txt" placeholder="Nombre Usuario" required="" type="text">
-                        <span class="input-txt-border"></span>
-                        <input id="correoEdit" class="input-txt" placeholder="Correo" required="" type="text">
-                        <span class="input-txt-border"></span>
-                        <input id="contraseñaEdit" class="input-txt" placeholder="Contraseña" required="" type="text">
-                        <span class="input-txt-border"></span>
-                    </div>
-                </div>
+        <div>
+            <h1 class="Txt">Editar Usuario</h1>
+            <img src="{% static 'Imagenes/EditarU.svg' %}" class="icono" alt="" onclick="mostrarCampos('editar')">
+            <div class="form" id="editar">
+                <table  id="tablaUsuarios">
+                    <thead> 
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Email</th>
+                            <th>Rol</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
             </div>
         </div>
+    </div>
+</div>
+<div id="editarUsuarioModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Editar Usuario</h2>
+        <form id="formularioEditarUsuario">
+            {% csrf_token %}
+            <input type="hidden" id="editarIdUsuario" name="id_usuario">
+            <label for="editarNombre">Nombre:</label>
+            <input type="text" id="editarNombre" name="nombre" required>
+            <label for="editarEmail">Email:</label>
+            <input type="email" id="editarEmail" name="email" required>
+            <label for="editarRol">Rol:</label>
+            <select id="editarRol" name="rol_usuario" required>
+                <option value="">Seleccione un rol</option>
+                <option value="Administrador">Administrador</option>
+                <option value="Secretario">Secretario</option>
+                <option value="Conductor">Conductor</option>
+            </select>
+            <button type="submit">Guardar</button>
+        </form>
+    </div>
         <div class="pag-admin" id=2 onclik="mostrarOcultar(2);">
             <div class="input-search">
                 <i class='bx bx-search'></i>
@@ -185,39 +210,43 @@
             <section class="productos_container">
                 <h2 class="subtitle" id="Astromelia">Catálogo Astromelias</h2>
                 <div class="about_main">
-                    <article class="about_icons">
+                    <article class="about_icons"  data-product-id="16">
                         <img src="{% static 'Imagenes/AstromeliaAm.JPG' %}" class="productos_img">
                         <h3 class="about_title">Astromelia Amarilla</h3>
-                        <p class="about_paragraph"> Cantidad = 20</p>
+                        <p class="about_paragraph"> Cantidad = <span id="stock_value"></span></p>
                         <div class="separacion">
-                            <i class='bx bx-plus'></i>
-                            <i class='bx bx-minus'></i>
+                            <i class='bx bx-plus' data-product-id="1"></i>
+                            <input type="number" id="quantity_change_input" value="">
+                            <i class='bx bx-minus'data-product-id="1"></i>
                         </div>
-                    </article>
-                        <article class="about_icons">
+                    </article> 
+                        <article class="about_icons" data-product-id="15">
                             <img src="{% static 'Imagenes/AstromeliaRoj.JPG' %}" class="productos_img">
                             <h3 class="about_title">Astromelia Roja</h3>
-                            <p class="about_paragraph"> Cantidad = 20</p>
+                            <p class="about_paragraph"> Cantidad = <span id="stock_value"></span></p>
                             <div class="separacion">
                                 <i class='bx bx-plus'></i>
+                                <input type="number" id="quantity_change_input" value="">
                                 <i class='bx bx-minus'></i>
                             </div>
                         </article>
-                        <article class="about_icons">
+                        <article class="about_icons" data-product-id="17">
                             <img src="{% static 'Imagenes/AstromeliaBl.jpg' %}" class="productos_img">
                             <h3 class="about_title">Astromelia Blanca</h3>
-                            <p class="about_paragraph"> Cantidad = 20</p>
+                            <p class="about_paragraph"> Cantidad = <span id="stock_value"></span></p>
                             <div class="separacion">
                                 <i class='bx bx-plus'></i>
+                                <input type="number" id="quantity_change_input" value="">
                                 <i class='bx bx-minus'></i>
                             </div>
                         </article>
-                        <article class="about_icons">
+                        <article class="about_icons" data-product-id="18">
                             <img src="{% static 'Imagenes/AstromeliaRos.JPG' %}" class="productos_img">
                             <h3 class="about_title">Astromelia Rosada</h3>
-                            <p class="about_paragraph"> Cantidad = 20</p>
+                            <p class="about_paragraph"> Cantidad = <span id="stock_value"></span></p>
                             <div class="separacion">
                                 <i class='bx bx-plus'></i>
+                                <input type="number" id="quantity_change_input" value="">
                                 <i class='bx bx-minus'></i>
                             </div>
                         </article>
@@ -226,39 +255,43 @@
                 <section class="productos_container">
                     <h2 class="subtitle" id="Rosa">Catálogo Rosas</h2>
                     <div class="about_main">
-                        <article class="about_icons">
+                        <article class="about_icons" data-product-id="31">
                             <img src="{% static 'Imagenes/RosaAm.jpg' %}" class="productos_img">
                             <h3 class="about_title">Rosa Amarilla</h3>
-                            <p class="about_paragraph"> Cantidad = 20</p>
+                            <p class="about_paragraph"> Cantidad = <span id="stock_value"></span></p>
                             <div class="separacion">
                                 <i class='bx bx-plus'></i>
+                                <input type="number" id="quantity_change_input" value="">
                                 <i class='bx bx-minus'></i>
                             </div>
                         </article>
-                        <article class="about_icons">
+                        <article class="about_icons" data-product-id="30">
                             <img src="{% static 'Imagenes/RosaRoj.jpg' %}" class="productos_img">
                             <h3 class="about_title">Rosa Roja</h3>
-                            <p class="about_paragraph"> Cantidad = 20</p>
+                            <p class="about_paragraph"> Cantidad = <span id="stock_value"></span></p>
                             <div class="separacion">
                                 <i class='bx bx-plus'></i>
+                                <input type="number" id="quantity_change_input" value="">
                                 <i class='bx bx-minus'></i>
                             </div>
                         </article>
-                        <article class="about_icons">
+                        <article class="about_icons" data-product-id="32">
                             <img src="{% static 'Imagenes/RosaBl.jpg' %}" class="productos_img">
                             <h3 class="about_title">Rosa Blanca</h3>
-                            <p class="about_paragraph"> Cantidad = 20</p>
+                            <p class="about_paragraph"> Cantidad = <span id="stock_value"></span></p>
                             <div class="separacion">
                                 <i class='bx bx-plus'></i>
+                                <input type="number" id="quantity_change_input" value="">
                                 <i class='bx bx-minus'></i>
                             </div>
                         </article>
-                        <article class="about_icons">
+                        <article class="about_icons" data-product-id="33">
                             <img src="{% static 'Imagenes/RosaRos.jpg' %}" class="productos_img">
                             <h3 class="about_title">Rosa Rosada</h3>
-                            <p class="about_paragraph"> Cantidad = 20</p>
+                            <p class="about_paragraph"> Cantidad = <span id="stock_value"></span></p>
                             <div class="separacion">
                                 <i class='bx bx-plus'></i>
+                                <input type="number" id="quantity_change_input" value="">
                                 <i class='bx bx-minus'></i>
                             </div>
                         </article>
@@ -267,39 +300,43 @@
                 <section class="productos_container">
                     <h2 class="subtitle" id="Clavel">Catálogo Claveles</h2>
                     <div class="about_main">
-                        <article class="about_icons">
+                        <article class="about_icons" data-product-id="36">
                             <img src="{% static 'Imagenes/ClavelNa.jpg' %}" class="productos_img">
                             <h3 class="about_title">Clavel Naranja</h3>
-                            <p class="about_paragraph">Cantidad = 20</p>
+                            <p class="about_paragraph"> Cantidad = <span id="stock_value"></span></p>
                             <div class="separacion">
                                 <i class='bx bx-plus'></i>
+                                <input type="number" id="quantity_change_input" value="">
                                 <i class='bx bx-minus'></i>
                             </div>
                         </article>
-                        <article class="about_icons">
+                        <article class="about_icons" data-product-id="37">
                             <img src="{% static 'Imagenes/ClavelRo.jpg' %}" class="productos_img">
                             <h3 class="about_title">Clavel Rojo</h3>
-                            <p class="about_paragraph">Cantidad = 20</p>
+                            <p class="about_paragraph"> Cantidad = <span id="stock_value"></span></p>
                             <div class="separacion">
                                 <i class='bx bx-plus'></i>
+                                <input type="number" id="quantity_change_input" value="">
                                 <i class='bx bx-minus'></i>
                             </div>
                         </article>
-                        <article class="about_icons">
+                        <article class="about_icons" data-product-id="38">
                             <img src="{% static 'Imagenes/ClavelBl.jpg' %}" class="productos_img">
                             <h3 class="about_title">Clavel Blanco</h3>
-                            <p class="about_paragraph">Cantidad = 20</p>
+                            <p class="about_paragraph"> Cantidad = <span id="stock_value"></span></p>
                             <div class="separacion">
                                 <i class='bx bx-plus'></i>
+                                <input type="number" id="quantity_change_input" value="">
                                 <i class='bx bx-minus'></i>
                             </div>
                         </article>
-                        <article class="about_icons">
+                        <article class="about_icons" data-product-id="39">
                             <img src="{% static 'Imagenes/ClavelRos.jpg' %}" class="productos_img">
                             <h3 class="about_title">Clavel Rosado</h3>
-                            <p class="about_paragraph">Cantidad = 20</p>
+                            <p class="about_paragraph"> Cantidad = <span id="stock_value"></span></p>
                             <div class="separacion">
                                 <i class='bx bx-plus'></i>
+                                <input type="number" id="quantity_change_input" value="">
                                 <i class='bx bx-minus'></i>
                             </div>
                         </article>
@@ -308,93 +345,103 @@
                 <section class="productos_container">
                     <h2 class="subtitle" id="Verdes">Catálogo Verdes</h2>
                     <div class="about_main">
-                        <article class="about_icons">
+                        <article class="about_icons" data-product-id="5">
                             <img src="{% static 'Imagenes/Erygium.jpg' %}" class="productos_img">
                             <h3 class="about_title">Eryngium</h3>
-                            <p class="about_paragraph"> Cantidad = 20</p>
+                            <p class="about_paragraph"> Cantidad = <span id="stock_value"></span></p>
                             <div class="separacion">
                                 <i class='bx bx-plus'></i>
+                                <input type="number" id="quantity_change_input" value="">
                                 <i class='bx bx-minus'></i>
                             </div>
                         </article>
-                        <article class="about_icons">
+                        <article class="about_icons" data-product-id="4">
                             <img src="{% static 'Imagenes/Brillantina1.jpg' %}" class="productos_img">
                             <h3 class="about_title">Brillantina</h3>
-                            <p class="about_paragraph"> Cantidad = 20</p>
+                            <p class="about_paragraph"> Cantidad = <span id="stock_value"></span></p>
                             <div class="separacion">
                                 <i class='bx bx-plus'></i>
+                                <input type="number" id="quantity_change_input" value="">
                                 <i class='bx bx-minus'></i>
                             </div>
                         </article>
-                        <article class="about_icons">
+                        <article class="about_icons" data-product-id="2">
                             <img src="{% static 'Imagenes/Coculos.jpg' %}" class="productos_img">
                             <h3 class="about_title">Coculos</h3>
-                            <p class="about_paragraph"> Cantidad = 20</p>
+                            <p class="about_paragraph"> Cantidad = <span id="stock_value"></span></p>
                             <div class="separacion">
                                 <i class='bx bx-plus'></i>
+                                <input type="number" id="quantity_change_input" value="">
                                 <i class='bx bx-minus'></i>
                             </div>
                         </article>
-                        <article class="about_icons">
+                        <article class="about_icons" data-product-id="1">
                             <img src="{% static 'Imagenes/Ruscus.jpg' %}" class="productos_img">
                             <h3 class="about_title">Ruscus</h3>
-                            <p class="about_paragraph"> Cantidad = 20</p>
+                            <p class="about_paragraph"> Cantidad = <span id="stock_value"></span></p>
                             <div class="separacion">
                                 <i class='bx bx-plus'></i>
+                                <input type="number" id="quantity_change_input" value="">
                                 <i class='bx bx-minus'></i>
                             </div>
                         </article>
-                        <article class="about_icons">
+                        <article class="about_icons" data-product-id="11">
                             <img src="{% static 'Imagenes/EucaliptoB.jpg' %}" class="productos_img">
                             <h3 class="about_title">Eucalipto Blue</h3>
-                            <p class="about_paragraph"> Cantidad = 20</p>
+                            <p class="about_paragraph"> Cantidad = <span id="stock_value"></span></p>
                             <div class="separacion">
                                 <i class='bx bx-plus'></i>
+                                <input type="number" id="quantity_change_input" value="">
                                 <i class='bx bx-minus'></i>
                             </div>
                         </article>
-                        <article class="about_icons">
+                        <article class="about_icons" data-product-id="13">
                             <img src="{% static 'Imagenes/CintaL.jpg' %}" class="productos_img">
                             <h3 class="about_title">Cinta Liriope</h3>
-                            <p class="about_paragraph"> Cantidad = 20</p>
+                            <p class="about_paragraph"> Cantidad = <span id="stock_value"></span></p>
                             <div class="separacion">
                                 <i class='bx bx-plus'></i>
+                                <input type="number" id="quantity_change_input" value="">
                                 <i class='bx bx-minus'></i>
                             </div>
                         </article>
-                        <article class="about_icons">
+                        <article class="about_icons" data-product-id="6">
                             <img src="{% static 'Imagenes/Helecho.jpg' %}" class="productos_img">
                             <h3 class="about_title">Helecho</h3>
-                            <p class="about_paragraph"> Cantidad = 20</p>
+                            <p class="about_paragraph"> Cantidad = <span id="stock_value"></span></p>
                             <div class="separacion">
                                 <i class='bx bx-plus'></i>
+                                <input type="number" id="quantity_change_input" value="">
                                 <i class='bx bx-minus'></i>
                             </div>
                         </article>
-                        <article class="about_icons">
+                        <article class="about_icons" data-product-id="29">
                             <img src="{% static 'Imagenes/EucaliptoS.jpg' %}" class="productos_img">
                             <h3 class="about_title">Eucalipto Silver</h3>
-                            <p class="about_paragraph"> Cantidad = 20</p>
+                            <p class="about_paragraph"> Cantidad = <span id="stock_value"></span></p>
                             <div class="separacion">
                                 <i class='bx bx-plus'></i>
+                                <input type="number" id="quantity_change_input" value="">
                                 <i class='bx bx-minus'></i>
                             </div>
                         </article>
-                        <article class="about_icons">
+                        <article class="about_icons" data-product-id="42">
                             <img src="{% static 'Imagenes/EucaliptoP.jpg' %}" class="productos_img">
                             <h3 class="about_title">Eucalipto Parvifolia</h3>
-                            <p class="about_paragraph"> Cantidad = 20</p>
+                            <p class="about_paragraph"> Cantidad = <span id="stock_value"></span></p>
                             <div class="separacion">
                                 <i class='bx bx-plus'></i>
+                                <input type="number" id="quantity_change_input" value="">
                                 <i class='bx bx-minus'></i>
                             </div>
                         </article>
-                        <article class="about_icons">
+                        <article class="about_icons" data-product-id="43">
                             <img src="{% static 'Imagenes/Aralias.jpg' %}" class="productos_img">
                             <h3 class="about_title">Aralias</h3>
-                            <p class="about_paragraph"> Cantidad = 20</p>
+                            <p class="about_paragraph"> Cantidad = <span id="stock_value"></span></p>
                             <div class="separacion">
                                 <i class='bx bx-plus'></i>
+                                <input type="number" id="quantity_change_input" value="">
                                 <i class='bx bx-minus'></i>
                             </div>
                         </article>
@@ -407,66 +454,42 @@
                 <i class='bx bx-search'></i>
                 <input type="text" class="input" placeholder="Buscar">
             </div>
-
+            <button id="add-order-btn">Añadir Pedido</button>
             <table class="table">
-
                 <thead>
                     <tr>
-
                         <th scope="col"></th>
-                        <th scope="col">Cliente</th>
-                        <th scope="col">Fecha</th>
-                        <th scope="col">NO Remision</th>
-                        <th scope="col">Producto</th>
-                        <th scope="col">Cajas FB o HB</th>
-                        <th scope="col">Empaque</th>
-                        <th scope="col">Precio</th>
-                        <th scope="col">Unidades</th>
+                        <th scope="col">Fecha pedido</th>
+                        <th scope="col">Nombre Usuario</th>
                         <th scope="col">Total</th>
+                        <th scope="col">Estado</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="order-table-body">
+                    {% for pedido in pedidos %}
                     <tr>
-                        <th scope="row">1</th>
-                        <td>-----</td>
-                        <td>-----</td>
-                        <td>-----</td>
-                        <td>-----</td>
-                        <td>-----</td>
-                        <td>-----</td>
-                        <td>-----</td>
-                        <td>-----</td>
-                        <td>-----
+                        <td>{{ pedido.id_pedido }}</td>
+                        <td>{{ pedido.fecha_pedido }}</td>
+                        <td>{{ pedido.id_usuario.nombre }}</td>
+                        <td>{{ pedido.total }}</td>
+                        <td>{{ pedido.estado }}</td>
+                        <td><button class="add-item-btn">Agregar</button></td>
                     </tr>
-                    <tr>
-                        <th scope="row">2</th>
-                        <td>-----</td>
-                        <td>-----</td>
-                        <td>-----</td>
-                        <td>-----</td>
-                        <td>-----</td>
-                        <td>-----</td>
-                        <td>-----</td>
-                        <td>-----</td>
-                        <td>-----</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">3</th>
-                        <td>-----</td>
-                        <td>-----</td>
-                        <td>-----</td>
-                        <td>-----</td>
-                        <td>-----</td>
-                        <td>-----</td>
-                        <td>-----</td>
-                        <td>-----</td>
-                        <td>-----</td>
-                    </tr>
-
+                    {% endfor %}
                 </tbody>
-
             </table>
-            <button class="button">Realizar Cambios</button>
+            <div id="order-modal" class="modal">
+                <div class="modal-content">
+                    <span class="close-btn">&times;</span>
+                    <form id="order-form">
+                        <label for="estado">Estado:</label>
+                        <select id="estado" name="estado">
+                            <option value="pago">Pago</option>
+                            <option value="no pago">No Pago</option>
+                        </select>
+                        <button type="submit">Crear Pedido</button>
+                    </form>
+                </div>
         </div>
         <div class="pag-admin" id=5 onclik="mostrarOcultar(5);">
             <div class="organizado">
