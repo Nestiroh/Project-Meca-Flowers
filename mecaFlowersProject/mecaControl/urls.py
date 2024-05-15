@@ -25,4 +25,8 @@ urlpatterns = [
     path('obtener_usuario/<int:usuario_id>/', views.obtener_usuario, name='obtener_usuario'),
     
     path('guardar_usuario/', views.guardar_usuario, name='guardar_usuario'),
+
+    path('get_stock/', views.get_stock, name='get_stock'),
+
+    path('update_stock/', views.update_stock, name='update_stock'),
 ]

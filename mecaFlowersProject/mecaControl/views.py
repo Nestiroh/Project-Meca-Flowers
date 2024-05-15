@@ -1,9 +1,11 @@
 from django.shortcuts import render, redirect
 from .forms import LoginForm
 from .models import Usuario 
+from .models import Producto
 from django.contrib import messages
 from django.urls import reverse
 from django.http import JsonResponse
+from django.core.exceptions import ObjectDoesNotExist
 
 def login_required(view_func):
     def _wrapped_view(request, *args, **kwargs):
@@ -93,7 +95,6 @@ def adminis(request):
             nombre_usuario = usuario_bd.nombre
             rol_usuario = usuario_bd.rol_usuario
 
-            # Eliminar la clave 'user_id' de la sesión al salir de la página adminis
             request.session.pop('user_id', None)
 
             return render(request, 'Admin.html', {'nombre_usuario': nombre_usuario, 'rol_usuario': rol_usuario})
@@ -134,3 +135,25 @@ def guardar_usuario(request):
             return JsonResponse({'error': 'Usuario no encontrado'})
     else:
         return JsonResponse({'error': 'Método no permitido'})
+
+def get_stock(request): #Se obtiene el sotck de producto
+    producto_id = request.GET.get('product_id')  
+    producto = Producto.objects.get(id_producto=producto_id)
+    stock = producto.stock
+    data = {'stock': stock}
+    return JsonResponse(data)
+
+def update_stock(request):#Se actualiza el stock de los productos
+    if request.method == 'POST':
+        product_id = request.POST.get('product_id')
+        new_quantity = request.POST.get('new_quantity')
+        
+        try:
+            producto = Producto.objects.get(id_producto=product_id)
+            producto.stock = new_quantity
+            producto.save()
+            return JsonResponse({'success': True})
+        except Producto.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Producto no encontrado'}, status=404)
+    else:
+        return JsonResponse({'success': False, 'error': 'Método no permitido'}, status=405)

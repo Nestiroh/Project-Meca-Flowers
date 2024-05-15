@@ -216,5 +216,94 @@ $(document).ready(function() { // TODAS las funciones para el editar usuario
 
 });
 
+$(document).ready(function() {  // Obtener la cantidad de stock al cargar la página
+    $('.about_icons').each(function() {
+        var productId = $(this).data('product-id'); // Obtener el id del producto
+        var stockValue = $(this).find('#stock_value'); // Elemento donde se mostrará el stock
+
+        $.ajax({
+            url: '/mecaControl/get_stock/?product_id=' + productId,
+            type: 'GET',
+            success: function(response) {
+                stockValue.text(response.stock);
+            },
+            error: function(xhr, errmsg, err) {
+                console.log(xhr.status + ": " + xhr.responseText);
+                // Manejar errores aquí si es necesario
+            }
+        });
+    });
+
+});
+
+$(document).ready(function() {//Funcion para actualiza el stock con los botones 
+    $('.about_icons').each(function() {
+        var productId = $(this).data('product-id'); // Obtener el id del producto
+        var stockValue = $(this).find('#stock_value'); // Elemento donde se mostrará el stock
+        var quantityChangeInput = $(this).find('#quantity_change_input'); // Campo de entrada para ingresar la cantidad
+
+        // Función para actualizar el stock restante al hacer clic en los botones "plus" y "minus"
+        $(this).on('click', '.bx-plus, .bx-minus', function() {
+            var quantityChange = parseInt(quantityChangeInput.val());
+            var currentQuantity = parseInt(stockValue.text());
+            var newQuantity;
+
+            if ($(this).hasClass('bx-plus')) {
+                newQuantity = currentQuantity + quantityChange;
+            } else {
+                newQuantity = currentQuantity - quantityChange;
+                if (newQuantity < 0) newQuantity = 0; 
+            }
+
+            updateStock(productId, newQuantity);
+        });
+
+        // Función para enviar la cantidad actualizada al servidor
+        function updateStock(productId, newQuantity) {
+            $.ajax({
+                url: '/mecaControl/update_stock/',  // URL para actualizar el stock
+                type: 'POST',
+                headers: { 'X-CSRFToken': getCookie('csrftoken') }, 
+                data: {
+                    product_id: productId,
+                    new_quantity: newQuantity
+                },
+                success: function(response) {
+                    if (response.success) {
+                        stockValue.text(newQuantity); // Actualizar el stock que se esta msotrando
+                    } else {
+                        alert('Error al actualizar el stock.');
+                    }
+                },
+                error: function(xhr, errmsg, err) {
+                    console.log(xhr.status + ": " + xhr.responseText);
+                    alert('Error al actualizar el stock.');
+                }
+            });
+            
+            function getCookie(name) {
+                var cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    var cookies = document.cookie.split(';');
+                    for (var i = 0; i < cookies.length; i++) {
+                        var cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+            
+        }
+    });
+});
+
+
+
+
+
+
 
 
