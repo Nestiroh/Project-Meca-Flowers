@@ -23,25 +23,83 @@ enlacesMenu.forEach(enlace => {
     });
 });
 
-function mostrarOcultar(x) {//Mostrar ocultar en funcion de los botones
-    
-    for (var i = 0; i <= 6; i++) {
-        if (i != x) {
-            document.getElementById(i).style.display = 'none';
-            resetFormValues();
-            document.getElementById("agregar").style.display='none'
-            document.getElementById("eliminar").style.display='none'
-            document.getElementById("editar").style.display='none'
+function getCookie(name) {
+    var value = document.getElementById('csrf-token').value;
+    return value;
+  }
+
+  function mostrarOcultar(x) {
+    $.ajax({
+        url: '/mecaControl/Roles/',
+        type: 'GET',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        success: function (response) {
+            if (response.error) {
+                alert(response.error);
+                return;
+            }
+            const user_Rol = response.rol_usuario;
+            const form = document.getElementById(x);
+
+            for (var i = 0; i <= 6; i++) {
+                if (i != x) {
+                    document.getElementById(i).style.display = 'none';
+                    resetFormValues();
+                    document.getElementById("agregar").style.display = 'none';
+                    document.getElementById("eliminar").style.display = 'none';
+                    document.getElementById("editar").style.display = 'none';
+                }
+            }
+
+            switch (user_Rol) {
+                case "Administrador":
+                    if (form.style.display === 'none') {
+                        form.style.display = 'block';
+                    } else {
+                        form.style.display = 'none';
+                        document.getElementById(0).style.display = 'block';
+                    }
+                    break;
+                case "Secretario":
+                    if (form.style.display === 'none') {
+                        if (x != 1) {
+                            form.style.display = 'block';
+                        } else {
+                            alert("No tiene permitido ingresar a esta pagina");
+                            document.getElementById(0).style.display = 'block';
+                        }
+                    } else {
+                        form.style.display = 'none';
+                        document.getElementById(0).style.display = 'block';
+                    }
+                    break;
+                case "Conductor":
+                    if (form.style.display === 'none') {
+                        if (x === 0 || x === 5 || x === 6) {
+                            form.style.display = 'block';
+                        } else {
+                            alert("No tiene permitido ingresar a esta pagina");
+                            document.getElementById(0).style.display = 'block';
+                        }
+                    } else {
+                        form.style.display = 'none';
+                        document.getElementById(0).style.display = 'block';
+                    }
+                    break;
+                default:
+                    alert("Rol de usuario no reconocido.");
+                    document.getElementById(0).style.display = 'block';
+            }
+
+        },
+        error: function (xhr, errmsg, err) {
+            alert("Error al obtener los datos del rol del usuario.");
         }
-    }
-    const form = document.getElementById(x);
-    if (form.style.display === 'none') {
-        form.style.display = 'block';
-    } else {
-        form.style.display = 'none';
-        document.getElementById(0).style.display = 'block';
-    }
+    });
 }
+
 
 function mostrarCampos(identificador) {//Muestra campos
     // Ocultar todos los formularios primero
@@ -374,9 +432,3 @@ document.addEventListener('DOMContentLoaded', function () {
         return cookieValue;
     }
 });
-
-
-
-
-
-

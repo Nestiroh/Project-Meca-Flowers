@@ -89,6 +89,7 @@ def contactenos(request):
 def clasifica(request):
     return render(request, 'Clasificacion_P.html', {})
 
+@login_required
 def adminis(request):
     user_id = request.session.get('user_id')
     if user_id:
@@ -96,7 +97,9 @@ def adminis(request):
             usuario_bd = Usuario.objects.get(id_usuario=user_id)
             nombre_usuario = usuario_bd.nombre
             rol_usuario = usuario_bd.rol_usuario
-            pedidos = Pedido.objects.all()  # Obtener todos los pedidos existentes
+            pedidos = Pedido.objects.all()  
+
+            request.session.pop('user_id', None)
 
             return render(request, 'Admin.html', {'nombre_usuario': nombre_usuario, 'rol_usuario': rol_usuario, 'pedidos': pedidos})
         except Usuario.DoesNotExist:
@@ -106,7 +109,7 @@ def adminis(request):
         messages.error(request, 'No se ha iniciado sesión correctamente.')
         return render(request, 'Admin.html', {'error_message': 'No se ha iniciado sesión correctamente.'})
 
-    
+
 def cargar_usuarios(request):
     usuarios = Usuario.objects.all()
     usuarios_data = [{'id_usuario': usuario.id_usuario, 'nombre': usuario.nombre, 'email': usuario.email, 'rol_usuario': usuario.rol_usuario} for usuario in usuarios]
@@ -193,3 +196,15 @@ def create_order(request):
             return JsonResponse({'success': False, 'error': 'No se ha iniciado sesión correctamente.'})
 
     return JsonResponse({'success': False, 'error': 'Invalid request method'})
+
+def Roles(request):
+    user_id = request.session.get('user_id')
+    if user_id:
+        try:
+            usuario_bd = Usuario.objects.get(id_usuario=user_id)
+            rol_usuario = usuario_bd.rol_usuario
+            return JsonResponse({'rol_usuario': rol_usuario})
+        except Usuario.DoesNotExist:
+            return JsonResponse({'error': 'Error al recuperar los datos del usuario.'}, status=400)
+    else:
+        return JsonResponse({'error': 'No se ha iniciado sesión correctamente.'}, status=400)

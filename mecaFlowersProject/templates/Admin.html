@@ -20,6 +20,7 @@
 </head>
 
 <body> 
+    <input type="hidden" id="csrf-token" value="{{ csrf_token }}">
     <section class="dividir">
         <div class="menu-dashboard">
             <div class="top-menu">
@@ -33,12 +34,12 @@
             </div>
 
             <div class="menu">
-
+                
                 <div id="rol" onclick="mostrarOcultar(1)" class="enlace">
                     <i class='bx bx-user-circle'></i>
                     <span id="rol">Usuarios</span>
                 </div>
-
+        
                 <div id="rol" onclick="mostrarOcultar(3)" class="enlace">
                     <i class='bx bxs-florist'></i>
                     <span id="rol">Productos</span>
@@ -68,7 +69,7 @@
                 <p class="txt-2">Has ingresado con rol: <strong>{{ rol_usuario }}</p>
               </div>
         </div>
-        <div class="pag-admin" id=1 onclik="mostrarOcultar(1);">
+        <div class="pag-admin" id=1 onclik="mostrarOcultar(1)">
             <div class="user">
                 <div>
                   <h1 class="Txt">Agregar Usuario</h1>
@@ -205,7 +206,7 @@
 
         </div>
     </div>
-    <div class="pag-admin" id=3 onclik="mostrarOcultar(3);">
+    <div class="pag-admin" id=3 onclik="mostrarOcultar(3)">
         <div class="agrupar">
             <section class="productos_container">
                 <h2 class="subtitle" id="Astromelia">Catálogo Astromelias</h2>
@@ -449,7 +450,7 @@
                 </section>
             </div>
         </div>
-        <div class="pag-admin" id=4 onclik="mostrarOcultar(4);">
+        <div class="pag-admin" id=4 onclik="mostrarOcultar(4)">
             <div class="input-search">
                 <i class='bx bx-search'></i>
                 <input type="text" class="input" placeholder="Buscar">
@@ -478,7 +479,8 @@
                     {% endfor %}
                 </tbody>
             </table>
-            <div id="order-modal" class="modal">
+        </div>
+        <div id="order-modal" class="modal">
                 <div class="modal-content">
                     <span class="close-btn">&times;</span>
                     <form id="order-form">
@@ -491,7 +493,7 @@
                     </form>
                 </div>
         </div>
-        <div class="pag-admin" id=5 onclik="mostrarOcultar(5);">
+        <div class="pag-admin" id=5 onclik="mostrarOcultar(5)">
             <div class="organizado">
                 <div id="checklist">
                     <input checked="" value="1" name="r" type="checkbox" id="01">
@@ -504,7 +506,7 @@
             </div>
             <button class="button">Realizar Cambios</button>
         </div>
-        <div class="pag-admin" id=6 onclik="mostrarOcultar(6);">
+        <div class="pag-admin" id=6 onclik="mostrarOcultar(6)">
              <a href="{% url 'login' %}"><button class="button" >¿Desea Salir?</button></a>
         </div>
     </section>
