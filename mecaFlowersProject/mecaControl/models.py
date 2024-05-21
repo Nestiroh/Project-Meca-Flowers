@@ -35,9 +35,10 @@ class Pedido(models.Model):
     fecha_pedido = models.DateField()
     id_usuario = models.ForeignKey('Usuario', models.DO_NOTHING, db_column='id_usuario')
     total = models.IntegerField()
-    estado = models.CharField(max_length=7)
+    estado = models.CharField(max_length=50)
     id_entidad = models.ForeignKey(Entidad, models.DO_NOTHING, db_column='id_entidad')
-
+    conductor = models.IntegerField()
+    
     class Meta:
         managed = False
         db_table = 'pedido'

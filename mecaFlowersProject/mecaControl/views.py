@@ -1,11 +1,14 @@
 from django.shortcuts import render, redirect
+import hashlib
 from .forms import LoginForm
-from .models import Usuario 
+from .models import Usuario, Pedido, Entidad, PedidoParte, Empaque
 from .models import Producto
 from django.contrib import messages
 from django.urls import reverse
 from django.http import JsonResponse
-from django.core.exceptions import ObjectDoesNotExist
+from django.utils import timezone
+from django.db import transaction
+import json
 
 def login_required(view_func):
     def _wrapped_view(request, *args, **kwargs):
@@ -22,11 +25,13 @@ def login(request):
         if form.is_valid():
             email = form.cleaned_data['email']
             contrasena = form.cleaned_data['contrasena']
+          
+            contrasena_encriptada = hashlib.sha256(contrasena.encode()).hexdigest()
 
             try:
                 usuario_bd = Usuario.objects.get(email=email)
     
-                if contrasena == usuario_bd.contrasena:
+                if contrasena_encriptada == usuario_bd.contrasena:
                     request.session['user_id'] = usuario_bd.id_usuario
                                           
                     return redirect(reverse('adminis') + f'?nombre_usuario={usuario_bd.nombre}&rol_usuario={usuario_bd.rol_usuario}')
@@ -43,13 +48,18 @@ def login(request):
 
 def agregar_usuario(request):
     if request.method == 'POST':
-        nombre = request.POST.get('nombre_usuario')  # Corregido
-        email = request.POST.get('correo')  # Corregido
-        contrasena = request.POST.get('contraseña')  # Corregido
-        rol_usuario = request.POST.get('rol')  # Corregido
-        telefono = request.POST.get('telefono')  # Corregido
+        email = request.POST.get('correo')
 
-        usuario = Usuario(nombre=nombre, email=email, contrasena=contrasena, rol_usuario=rol_usuario, telefono=telefono)  # Corregido
+      
+        if Usuario.objects.filter(email=email).exists():
+            return JsonResponse({'message': 'El correo ya está registrado'})
+
+        nombre = request.POST.get('nombre_usuario')
+        contrasena = request.POST.get('contraseña')
+        rol_usuario = request.POST.get('rol')
+        telefono = request.POST.get('telefono')
+
+        usuario = Usuario(nombre=nombre, email=email, contrasena=contrasena, rol_usuario=rol_usuario, telefono=telefono)
         usuario.save()
 
         return JsonResponse({'message': 'Usuario agregado correctamente'}, status=200)
@@ -86,7 +96,6 @@ def contactenos(request):
 def clasifica(request):
     return render(request, 'Clasificacion_P.html', {})
 
-@login_required
 def adminis(request):
     user_id = request.session.get('user_id')
     if user_id:
@@ -94,17 +103,18 @@ def adminis(request):
             usuario_bd = Usuario.objects.get(id_usuario=user_id)
             nombre_usuario = usuario_bd.nombre
             rol_usuario = usuario_bd.rol_usuario
+            pedidos = Pedido.objects.all()  
 
-            request.session.pop('user_id', None)
 
-            return render(request, 'Admin.html', {'nombre_usuario': nombre_usuario, 'rol_usuario': rol_usuario})
+            return render(request, 'Admin.html', {'nombre_usuario': nombre_usuario, 'rol_usuario': rol_usuario, 'pedidos': pedidos})
         except Usuario.DoesNotExist:
             messages.error(request, 'Error al recuperar los datos del usuario.')
             return render(request, 'Admin.html', {'error_message': 'Error al recuperar los datos del usuario.'})
     else:
         messages.error(request, 'No se ha iniciado sesión correctamente.')
         return render(request, 'Admin.html', {'error_message': 'No se ha iniciado sesión correctamente.'})
-    
+
+
 def cargar_usuarios(request):
     usuarios = Usuario.objects.all()
     usuarios_data = [{'id_usuario': usuario.id_usuario, 'nombre': usuario.nombre, 'email': usuario.email, 'rol_usuario': usuario.rol_usuario} for usuario in usuarios]
@@ -157,3 +167,179 @@ def update_stock(request):#Se actualiza el stock de los productos
             return JsonResponse({'success': False, 'error': 'Producto no encontrado'}, status=404)
     else:
         return JsonResponse({'success': False, 'error': 'Método no permitido'}, status=405)
+
+def get_conductores(request):#obtener conductores para pedido
+    conductores = Usuario.objects.filter(rol_usuario='Conductor')
+    conductores_data = [{'id_usuario': conductor.id_usuario, 'nombre': conductor.nombre} for conductor in conductores]
+    return JsonResponse({'conductores': conductores_data})
+
+def get_entidades(request):#obtener entidades para pedido
+    entidades = Entidad.objects.all()
+    entidades_data = [{'id_entidad': entidad.id_entidad, 'nombre_entidad': entidad.nombre_entidad} for entidad in entidades]
+    return JsonResponse({'entidades': entidades_data})
+
+from django.db import IntegrityError
+
+def create_order(request):
+    if request.method == 'POST':
+        estado = request.POST.get('estado')
+        conductor = request.POST.get('conductor')
+        user_id = request.session.get('user_id')
+        entidad_option = request.POST.get('entidad-option')
+
+        if user_id:
+            try:
+                usuario_bd = Usuario.objects.get(id_usuario=user_id)
+
+                if entidad_option == 'existente':
+                    id_entidad = request.POST.get('entidad')
+                    if not Entidad.objects.filter(id_entidad=id_entidad).exists():
+                        return JsonResponse({'success': False, 'error': 'La entidad no existe.'})
+                elif entidad_option == 'nueva':
+                    nombre_entidad = request.POST.get('nombre_entidad')
+                    gmail = request.POST.get('gmail')
+                    try:
+                        # Crear la nueva entidad
+                        entidad = Entidad.objects.create(nombre_entidad=nombre_entidad, gmail=gmail)
+                        # Obtener el ID de la última entidad creada
+                        id_entidad = Entidad.objects.latest('id_entidad').id_entidad
+                    except IntegrityError:
+                        return JsonResponse({'success': False, 'error': 'Error al crear la entidad.'})
+                else:
+                    return JsonResponse({'success': False, 'error': 'Opción de entidad no válida.'})
+
+                # Crear el pedido utilizando el ID de la entidad
+                pedido = Pedido.objects.create(
+                    fecha_pedido=timezone.now(),
+                    id_usuario=usuario_bd,
+                    total=0,
+                    estado=estado,
+                    id_entidad_id=id_entidad,
+                    conductor=conductor
+                )
+                pedido_data = {
+                    'id_pedido': pedido.id_pedido,
+                    'fecha_pedido': pedido.fecha_pedido.strftime('%Y-%m-%d'),
+                    'nombre_usuario': usuario_bd.nombre,
+                    'total': pedido.total,
+                    'estado': pedido.estado,
+                    'conductor': pedido.conductor 
+                }
+                return JsonResponse({'success': True, 'order': pedido_data, 'mensaje': 'Pedido actualizado correctamente'})
+            except Usuario.DoesNotExist:
+                return JsonResponse({'success': False, 'error': 'Error al recuperar los datos del usuario.'})
+        else:
+            return JsonResponse({'success': False, 'error': 'No se ha iniciado sesión correctamente.'})
+
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})
+
+
+
+def Roles(request): #define los roles
+    user_id = request.session.get('user_id')
+    if user_id:
+        try:
+            usuario_bd = Usuario.objects.get(id_usuario=user_id)
+            rol_usuario = usuario_bd.rol_usuario
+            return JsonResponse({'rol_usuario': rol_usuario})
+        except Usuario.DoesNotExist:
+            return JsonResponse({'error': 'Error al recuperar los datos del usuario.'}, status=400)
+    else:
+        return JsonResponse({'error': 'No se ha iniciado sesión correctamente.'}, status=400)
+    
+def add_pedido_parte(request): #añade los pedido parte a los pedidos
+    if request.method == 'POST' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        pedido_id = request.POST.get('pedido_id')
+        cantidad_prod = int(request.POST.get('cantidad_prod'))
+        cantidad_cajas = int(request.POST.get('cantidad_cajas'))
+        precio = float(request.POST.get('precio'))
+        id_empaque = int(request.POST.get('empaque'))
+        id_producto = int(request.POST.get('producto'))
+
+        if not pedido_id:
+            return JsonResponse({'success': False, 'error': 'El ID del pedido es requerido'})
+
+        try:
+            with transaction.atomic():
+                producto = Producto.objects.select_for_update().get(id_producto=id_producto)
+
+              
+                if producto.stock < cantidad_cajas * cantidad_prod:
+                    return JsonResponse({'success': False, 'error': 'No hay suficiente producto disponible'})
+
+              
+                producto.stock -= cantidad_cajas * cantidad_prod
+                producto.save()
+
+                pedido_parte = PedidoParte(
+                    id_pedido_id=pedido_id,
+                    cantidad_prod=cantidad_prod,
+                    cantidad_cajas=cantidad_cajas,
+                    precio=precio,
+                    id_empaque_id=id_empaque,
+                    id_producto_id=id_producto
+                )
+                pedido_parte.save()
+
+            return JsonResponse({'success': True})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    else:
+        return JsonResponse({'success': False, 'error': 'Invalid request'}, status=400)
+    
+def get_pedido_parte(request):
+    if request.method == 'POST' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        try:
+            data = json.loads(request.body)
+            pedido_id = data.get('pedido_id')
+
+            if not pedido_id:
+                return JsonResponse({'success': False, 'error': 'El ID del pedido es requerido'})
+
+            pedido_partes = PedidoParte.objects.filter(id_pedido=pedido_id)
+            pedido_partes_list = []
+
+            for parte in pedido_partes:
+                empaque_nombre = parte.id_empaque.nombre  # Obtener el nombre del empaque
+                pedido_partes_list.append({
+                    'id_pedido_par': parte.id_pedido_par,
+                    'cantidad_prod': parte.cantidad_prod,
+                    'producto': parte.id_producto.nombre_producto,
+                    'cantidad_cajas': parte.cantidad_cajas,
+                    'empaque': empaque_nombre  # Usar el nombre del empaque
+                })
+
+            return JsonResponse({'success': True, 'pedido_partes': pedido_partes_list})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    else:
+        return JsonResponse({'success': False, 'error': 'Invalid request'}, status=400)
+    
+def delete_pedido_parte(request):
+    if request.method == 'POST' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        try:
+            data = json.loads(request.body)
+            pedido_parte_id = data.get('id_pedido_par')
+
+            if not pedido_parte_id:
+                return JsonResponse({'success': False, 'error': 'El ID del pedido parte es requerido'})
+
+            pedido_parte = PedidoParte.objects.get(id_pedido_par=pedido_parte_id)
+            producto = Producto.objects.get(id_producto=pedido_parte.id_producto_id)
+
+            # Restaurar la cantidad de producto al inventario
+            producto.stock += pedido_parte.cantidad_prod * pedido_parte.cantidad_cajas
+            producto.save()
+
+            # Eliminar el PedidoParte
+            pedido_parte.delete()
+
+            return JsonResponse({'success': True})
+        except PedidoParte.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'El pedido parte no existe'})
+        except Producto.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'El producto no existe'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    else:
+        return JsonResponse({'success': False, 'error': 'Invalid request'}, status=400)

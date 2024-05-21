@@ -23,25 +23,83 @@ enlacesMenu.forEach(enlace => {
     });
 });
 
-function mostrarOcultar(x) {//Mostrar ocultar en funcion de los botones
-    
-    for (var i = 0; i <= 6; i++) {
-        if (i != x) {
-            document.getElementById(i).style.display = 'none';
-            resetFormValues();
-            document.getElementById("agregar").style.display='none'
-            document.getElementById("eliminar").style.display='none'
-            document.getElementById("editar").style.display='none'
+function getCookie(name) {
+    var value = document.getElementById('csrf-token').value;
+    return value;
+  }
+
+  function mostrarOcultar(x) {
+    $.ajax({
+        url: '/mecaControl/Roles/',
+        type: 'GET',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        success: function (response) {
+            if (response.error) {
+                alert(response.error);
+                return;
+            }
+            const user_Rol = response.rol_usuario;
+            const form = document.getElementById(x);
+
+            for (var i = 0; i <= 6; i++) {
+                if (i != x) {
+                    document.getElementById(i).style.display = 'none';
+                    resetFormValues();
+                    document.getElementById("agregar").style.display = 'none';
+                    document.getElementById("eliminar").style.display = 'none';
+                    document.getElementById("editar").style.display = 'none';
+                }
+            }
+
+            switch (user_Rol) {
+                case "Administrador":
+                    if (form.style.display === 'none') {
+                        form.style.display = 'block';
+                    } else {
+                        form.style.display = 'none';
+                        document.getElementById(0).style.display = 'block';
+                    }
+                    break;
+                case "Secretario":
+                    if (form.style.display === 'none') {
+                        if (x != 1) {
+                            form.style.display = 'block';
+                        } else {
+                            alert("No tiene permitido ingresar a esta pagina");
+                            document.getElementById(0).style.display = 'block';
+                        }
+                    } else {
+                        form.style.display = 'none';
+                        document.getElementById(0).style.display = 'block';
+                    }
+                    break;
+                case "Conductor":
+                    if (form.style.display === 'none') {
+                        if (x === 0 || x === 5 || x === 6) {
+                            form.style.display = 'block';
+                        } else {
+                            alert("No tiene permitido ingresar a esta pagina");
+                            document.getElementById(0).style.display = 'block';
+                        }
+                    } else {
+                        form.style.display = 'none';
+                        document.getElementById(0).style.display = 'block';
+                    }
+                    break;
+                default:
+                    alert("Rol de usuario no reconocido.");
+                    document.getElementById(0).style.display = 'block';
+            }
+
+        },
+        error: function (xhr, errmsg, err) {
+            alert("Error al obtener los datos del rol del usuario.");
         }
-    }
-    const form = document.getElementById(x);
-    if (form.style.display === 'none') {
-        form.style.display = 'block';
-    } else {
-        form.style.display = 'none';
-        document.getElementById(0).style.display = 'block';
-    }
+    });
 }
+
 
 function mostrarCampos(identificador) {//Muestra campos
     // Ocultar todos los formularios primero
@@ -71,26 +129,28 @@ function resetFormValues() { //Resetear los valores a 0 de la administracion de 
 
 $(document).ready(function() {//Agregar usuario con AJAX
     $('#formularioUsuario').submit(function(event) {
-        event.preventDefault(); // Evitar el envío normal del formulario
-
+        event.preventDefault(); 
+    
         var formData = $(this).serialize();
-
-        // Realizar la petición Ajax con la URL correspondiente para agregar usuario
+    
         $.ajax({
             type: 'POST',
-            url: '/mecaControl/agregar_usuario/',  // URL de la vista para agregar usuario
+            url: '/mecaControl/agregar_usuario/',  
             data: formData,
             success: function(response) {
-                // Manejar la respuesta aquí, por ejemplo mostrar un mensaje de éxito
+                
                 alert(response.message);
                 resetFormValues();
             },
             error: function(xhr, status, error) {
-                // Manejar errores si los hay
-                console.error(xhr.responseText);
+             
+                var response = JSON.parse(xhr.responseText);
+                alert(response.error);
             }
         });
     });
+    
+    
 
     $('#formularioEliminarUsuario').submit(function(event) {//Eliminar usuario con AJAX
         event.preventDefault(); // Evitar el envío normal del formulario
@@ -300,10 +360,355 @@ $(document).ready(function() {//Funcion para actualiza el stock con los botones
     });
 });
 
+document.addEventListener('DOMContentLoaded', function () {//adminsitrar entidades y conductores
+    const addOrderBtn = document.getElementById('add-order-btn');
+    const modal = document.getElementById('order-modal');
+    const closeBtn = document.querySelector('.close-btn');
+    const form = document.getElementById('order-form');
+    const entidadOption = document.getElementById('entidad-option');
+    const entidadExistente = document.getElementById('entidad-existente');
+    const entidadNueva = document.getElementById('entidad-nueva');
+
+    addOrderBtn.addEventListener('click', () => {
+        modal.style.display = 'block';
+        loadConductores();
+        loadEntidades();
+    });
+
+    closeBtn.addEventListener('click', () => {
+        modal.style.display = 'none';
+    });
+
+    window.addEventListener('click', (event) => {
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    });
+
+    entidadOption.addEventListener('change', function () {
+        if (this.value === 'existente') {
+            entidadExistente.style.display = 'block';
+            entidadNueva.style.display = 'none';
+        } else if (this.value === 'nueva') {
+            entidadExistente.style.display = 'none';
+            entidadNueva.style.display = 'block';
+        }
+    });
+
+    form.addEventListener('submit', function (event) {
+        event.preventDefault();
+
+        fetch('/mecaControl/create-order/', {
+            method: 'POST',
+            body: new FormData(form),
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.mensaje);
+                window.location.reload();
+                modal.style.display = 'none';
+            } else {
+                alert('Error al crear el pedido: ' + data.error);
+            }
+        });
+    });
+
+    function loadConductores() {
+        fetch('/mecaControl/get_conductores/')
+            .then(response => response.json())
+            .then(data => {
+                const conductorSelect = document.getElementById('conductor');
+                conductorSelect.innerHTML = '';
+                data.conductores.forEach(conductor => {
+                    const option = document.createElement('option');
+                    option.value = conductor.id_usuario;
+                    option.textContent = conductor.nombre;
+                    conductorSelect.appendChild(option);
+                });
+            });
+    }
+
+    function loadEntidades() {
+        fetch('/mecaControl/get_entidades/')
+            .then(response => response.json())
+            .then(data => {
+                const entidadSelect = document.getElementById('entidad');
+                entidadSelect.innerHTML = '';
+                data.entidades.forEach(entidad => {
+                    const option = document.createElement('option');
+                    option.value = entidad.id_entidad;
+                    option.textContent = entidad.nombre_entidad;
+                    entidadSelect.appendChild(option);
+                });
+
+                // Capturar el ID de la última entidad creada y seleccionarla automáticamente
+                if (data.entidades.length > 0) {
+                    const lastEntityId = data.entidades[data.entidades.length - 1].id_entidad;
+                    entidadSelect.value = lastEntityId;
+                }
+            });
+    }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+});
 
 
 
 
+document.addEventListener('DOMContentLoaded', function() { //Parte de agregar al pedido pedido parte
+    const modal = document.getElementById('pedido-parte-modal');
+    const closeBtn = document.querySelector('.close-btn');
+    const addItemBtns = document.querySelectorAll('.add-item-btn');
+    const form = document.getElementById('pedido-parte-form');
+
+    addItemBtns.forEach(button => {
+        button.addEventListener('click', function() {
+            const pedidoId = this.closest('tr').getAttribute('data-id');
+            document.getElementById('pedido-id').value = pedidoId; 
+            modal.style.display = 'block';
+        });
+    });
+ 
+    closeBtn.addEventListener('click', function() {
+        modal.style.display = 'none';
+    });
+
+    window.addEventListener('click', function(event) {
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    });
+
+    form.addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        const formData = new FormData(form);
+        
+        fetch('/mecaControl/add_pedido_parte/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Pedido parte agregado correctamente');
+                modal.style.display = 'none';
+                form.reset();
+            } else {
+                alert('Error al agregar pedido: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    });
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+});
+
+document.addEventListener('DOMContentLoaded', function() {//Funcion para ver los pedido parte asociados
+    const viewItemsBtns = document.querySelectorAll('.view-items-btn');
+    const viewModal = document.getElementById('view-pedido-parte-modal');
+    const pedidoParteTableBody = document.getElementById('pedido-parte-table-body');
+    const closeBtn = viewModal.querySelector('.close-btn');
+
+    viewItemsBtns.forEach(button => {
+        button.addEventListener('click', function() {
+            const pedidoId = this.closest('tr').getAttribute('data-id');
+
+            fetch('/mecaControl/get_pedido_parte/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({ pedido_id: pedidoId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    pedidoParteTableBody.innerHTML = '';
+                    data.pedido_partes.forEach(parte => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${parte.cantidad_prod}</td>
+                            <td>${parte.producto}</td>
+                            <td>${parte.cantidad_cajas}</td>
+                            <td>${parte.empaque}</td>
+                            <td><button class="delete-item-btn" data-id="${parte.id_pedido_par}">Eliminar</button></td>
+                        `;
+                        pedidoParteTableBody.appendChild(row);
+                    });
+                    viewModal.style.display = 'block';
+                } else {
+                    alert('Error al cargar los detalles del pedido: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error al cargar los detalles del pedido: ' + error);
+            });
+        });
+    });
+
+    closeBtn.addEventListener('click', function() {
+        viewModal.style.display = 'none';
+    });
+
+    window.addEventListener('click', function(event) {
+        if (event.target === viewModal) {
+            viewModal.style.display = 'none';
+        }
+    });
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+});
 
 
+document.addEventListener('DOMContentLoaded', function() {//Ver los pedido parte y eliminarlos
+    const viewItemsBtns = document.querySelectorAll('.view-items-btn');
+    const viewModal = document.getElementById('view-pedido-parte-modal');
+    const pedidoParteTableBody = document.getElementById('pedido-parte-table-body');
+    const closeBtn = viewModal.querySelector('.close-btn');
 
+    viewItemsBtns.forEach(button => {
+        button.addEventListener('click', function() {
+            const pedidoId = this.closest('tr').getAttribute('data-id');
+
+            fetch('/mecaControl/get_pedido_parte/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({ pedido_id: pedidoId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    pedidoParteTableBody.innerHTML = '';
+                    data.pedido_partes.forEach(parte => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${parte.cantidad_prod}</td>
+                            <td>${parte.producto}</td>
+                            <td>${parte.cantidad_cajas}</td>
+                            <td>${parte.empaque}</td>
+                            <td><button class="delete-item-btn" data-id="${parte.id_pedido_par}">Devolver</button></td>
+                        `;
+                        pedidoParteTableBody.appendChild(row);
+                    });
+
+                    // Add event listeners for delete buttons
+                    const deleteItemBtns = document.querySelectorAll('.delete-item-btn');
+                    deleteItemBtns.forEach(button => {
+                        button.addEventListener('click', function() {
+                            const pedidoParteId = this.getAttribute('data-id');
+                            fetch('/mecaControl/delete_pedido_parte/', {
+                                method: 'POST',
+                                headers: {
+                                    'X-CSRFToken': getCookie('csrftoken'),
+                                    'X-Requested-With': 'XMLHttpRequest'
+                                },
+                                body: JSON.stringify({ id_pedido_par: pedidoParteId })
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    this.closest('tr').remove();
+                                    alert('Pedido parte eliminado correctamente');
+                                } else {
+                                    alert('Error al eliminar pedido parte: ' + data.error);
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                alert('Error al eliminar pedido parte: ' + error);
+                            });
+                        });
+                    });
+
+                    viewModal.style.display = 'block';
+                } else {
+                    alert('Error al cargar los detalles del pedido: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error al cargar los detalles del pedido: ' + error);
+            });
+        });
+    });
+
+    closeBtn.addEventListener('click', function() {
+        viewModal.style.display = 'none';
+    });
+
+    window.addEventListener('click', function(event) {
+        if (event.target === viewModal) {
+            viewModal.style.display = 'none';
+        }
+    });
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+});

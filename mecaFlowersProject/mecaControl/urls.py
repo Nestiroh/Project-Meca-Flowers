@@ -29,4 +29,18 @@ urlpatterns = [
     path('get_stock/', views.get_stock, name='get_stock'),
 
     path('update_stock/', views.update_stock, name='update_stock'),
+
+    path('create-order/', views.create_order, name='create_order'),
+
+    path('Roles/', views.Roles, name='Roles'),
+
+    path('add_pedido_parte/', views.add_pedido_parte, name='add_pedido_parte'),
+
+    path('get_pedido_parte/', views.get_pedido_parte, name='get_pedido_parte'),
+
+    path('delete_pedido_parte/', views.delete_pedido_parte, name='delete_pedido_parte'),
+
+    path('get_conductores/', views.get_conductores, name='get_conductores'),
+
+    path('get_entidades/', views.get_entidades, name='get_entidades'),
 ]
