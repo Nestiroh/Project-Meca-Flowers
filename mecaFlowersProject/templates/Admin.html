@@ -456,7 +456,7 @@
                 <input type="text" class="input" placeholder="Buscar">
             </div>
             <button id="add-order-btn">Añadir Pedido</button>
-            <table class="table">
+            <table class="table"> <!-- Tabla de pedidos -->
                 <thead>
                     <tr>
                         <th scope="col">ID</th>
@@ -476,12 +476,13 @@
                         <td>{{ pedido.fecha_pedido }}</td>
                         <td>{{ pedido.id_usuario.nombre }}</td>
                         <td>{{ pedido.id_entidad.nombre_entidad }}</td>
-                        <td>{{ pedido.conductor }}</td>
+                        <td>{{ pedido.conductor.nombre }}</td>
                         <td>{{ pedido.total }}</td>
                         <td>{{ pedido.estado }}</td>
                         <td>
                             <button class="add-item-btn">Agregar</button>
                             <button class="view-items-btn">Ver</button>
+                            <button class="delete-items-btn">Eliminar</button>
                         </td>
                     </tr>
                     {% endfor %}
@@ -489,7 +490,7 @@
             </table>
             
         </div>
-        <div id="view-pedido-parte-modal" class="modal">
+        <div id="view-pedido-parte-modal" class="modal"> <!-- Ver pedido parte modal -->
             <div class="modal-content">
                 <span class="close-btn">&times;</span>
                 <table class="table">
@@ -508,7 +509,7 @@
                 </table>
             </div>
         </div>
-        <div id="pedido-parte-modal" class="modal">
+        <div id="pedido-parte-modal" class="modal"> <!-- Modal pedido parte -->
             <div class="modal-content">
                 <span class="close-btn">&times;</span>
                 <form id="pedido-parte-form">
@@ -542,7 +543,7 @@
                 </form>
             </div>
         </div>        
-<div id="order-modal" class="modal">
+<div id="order-modal" class="modal"> <!-- Modal de entidad-->
     <div class="modal-content">
         <span class="close-btn">&times;</span>
         <form id="order-form">
@@ -552,9 +553,9 @@
                 <option value="no pago">No Pago</option>
             </select>
             
-            <label for="conductor">Conductor:</label>
+            <label for="conductor">Conductor:</label> 
             <select id="conductor" name="conductor">
-                <!-- Las opciones se llenarán dinámicamente -->
+                <!-- Las opciones se llenan -->
             </select>
 
             <label for="entidad-option">Cliente:</label>
@@ -566,7 +567,7 @@
             <div id="entidad-existente" class="entidad-option">
                 <label for="entidad">Seleccionar Cliente:</label>
                 <select id="entidad" name="entidad">
-                    <!-- Las opciones se llenarán dinámicamente -->
+                    <!-- Las opciones se llenan -->
                 </select>
             </div>
 

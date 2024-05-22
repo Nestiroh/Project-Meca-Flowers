@@ -180,10 +180,10 @@ def get_entidades(request):#obtener entidades para pedido
 
 from django.db import IntegrityError
 
-def create_order(request):
+def create_order(request): #Crea el pedido
     if request.method == 'POST':
         estado = request.POST.get('estado')
-        conductor = request.POST.get('conductor')
+        conductor_id = request.POST.get('conductor')  # Cambio aquí: Obtener el ID del conductor
         user_id = request.session.get('user_id')
         entidad_option = request.POST.get('entidad-option')
 
@@ -208,14 +208,17 @@ def create_order(request):
                 else:
                     return JsonResponse({'success': False, 'error': 'Opción de entidad no válida.'})
 
-                # Crear el pedido utilizando el ID de la entidad
+                # Cambio aquí: Obtener el objeto Usuario del conductor
+                conductor = Usuario.objects.get(id_usuario=conductor_id)
+
+                # Crear el pedido utilizando el ID de la entidad y el objeto Usuario del conductor
                 pedido = Pedido.objects.create(
                     fecha_pedido=timezone.now(),
                     id_usuario=usuario_bd,
                     total=0,
                     estado=estado,
                     id_entidad_id=id_entidad,
-                    conductor=conductor
+                    conductor=conductor  # Cambio aquí: Asignar el objeto Usuario del conductor
                 )
                 pedido_data = {
                     'id_pedido': pedido.id_pedido,
@@ -223,7 +226,7 @@ def create_order(request):
                     'nombre_usuario': usuario_bd.nombre,
                     'total': pedido.total,
                     'estado': pedido.estado,
-                    'conductor': pedido.conductor 
+                    'conductor': pedido.conductor.nombre  # Cambio aquí: Obtener el nombre del conductor
                 }
                 return JsonResponse({'success': True, 'order': pedido_data, 'mensaje': 'Pedido actualizado correctamente'})
             except Usuario.DoesNotExist:
@@ -232,6 +235,7 @@ def create_order(request):
             return JsonResponse({'success': False, 'error': 'No se ha iniciado sesión correctamente.'})
 
     return JsonResponse({'success': False, 'error': 'Invalid request method'})
+
 
 
 
@@ -287,7 +291,7 @@ def add_pedido_parte(request): #añade los pedido parte a los pedidos
     else:
         return JsonResponse({'success': False, 'error': 'Invalid request'}, status=400)
     
-def get_pedido_parte(request):
+def get_pedido_parte(request): #obtiene el pedido parte
     if request.method == 'POST' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
         try:
             data = json.loads(request.body)
@@ -315,7 +319,7 @@ def get_pedido_parte(request):
     else:
         return JsonResponse({'success': False, 'error': 'Invalid request'}, status=400)
     
-def delete_pedido_parte(request):
+def delete_pedido_parte(request):# Elimina pedido parte
     if request.method == 'POST' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
         try:
             data = json.loads(request.body)
@@ -331,7 +335,6 @@ def delete_pedido_parte(request):
             producto.stock += pedido_parte.cantidad_prod * pedido_parte.cantidad_cajas
             producto.save()
 
-            # Eliminar el PedidoParte
             pedido_parte.delete()
 
             return JsonResponse({'success': True})
@@ -343,3 +346,38 @@ def delete_pedido_parte(request):
             return JsonResponse({'success': False, 'error': str(e)})
     else:
         return JsonResponse({'success': False, 'error': 'Invalid request'}, status=400)
+    
+def delete_order(request): #elimina la orden
+    if request.method == 'POST':
+        try:
+            body = json.loads(request.body)
+            pedido_id = body.get('pedido_id')
+
+            if not pedido_id:
+                return JsonResponse({'success': False, 'error': 'ID del pedido no proporcionado'})
+
+            with transaction.atomic():
+                try:
+                    pedido = Pedido.objects.select_for_update().get(id_pedido=pedido_id)
+                    pedido_partes = PedidoParte.objects.filter(id_pedido=pedido)
+
+                    for pedido_parte in pedido_partes:
+                        producto = Producto.objects.get(id_producto=pedido_parte.id_producto_id)
+
+                        
+                        producto.stock += pedido_parte.cantidad_prod * pedido_parte.cantidad_cajas
+                        producto.save()
+
+                        
+                        pedido_parte.delete()
+
+                    
+                    pedido.delete()
+                    return JsonResponse({'success': True, 'mensaje': 'Pedido y sus partes eliminados correctamente'})
+                except Pedido.DoesNotExist:
+                    return JsonResponse({'success': False, 'error': 'Pedido no encontrado'})
+                except Producto.DoesNotExist:
+                    return JsonResponse({'success': False, 'error': 'Uno de los productos de la orden no existe'})
+        except json.JSONDecodeError:
+            return JsonResponse({'success': False, 'error': 'Error al decodificar JSON'})
+    return JsonResponse({'success': False, 'error': 'Método de solicitud no válido'})

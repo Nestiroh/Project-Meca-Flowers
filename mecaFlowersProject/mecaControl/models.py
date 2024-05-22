@@ -37,7 +37,7 @@ class Pedido(models.Model):
     total = models.IntegerField()
     estado = models.CharField(max_length=50)
     id_entidad = models.ForeignKey(Entidad, models.DO_NOTHING, db_column='id_entidad')
-    conductor = models.IntegerField()
+    conductor = models.ForeignKey('Usuario', models.DO_NOTHING, db_column='conductor', related_name='pedido_conductor_set', blank=True, null=True)
     
     class Meta:
         managed = False

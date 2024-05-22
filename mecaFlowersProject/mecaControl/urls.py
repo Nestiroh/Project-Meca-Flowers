@@ -43,4 +43,6 @@ urlpatterns = [
     path('get_conductores/', views.get_conductores, name='get_conductores'),
 
     path('get_entidades/', views.get_entidades, name='get_entidades'),
+
+    path('delete-order/', views.delete_order, name='delete_order'),
 ]

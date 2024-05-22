@@ -470,8 +470,6 @@ document.addEventListener('DOMContentLoaded', function () {//adminsitrar entidad
 });
 
 
-
-
 document.addEventListener('DOMContentLoaded', function() { //Parte de agregar al pedido pedido parte
     const modal = document.getElementById('pedido-parte-modal');
     const closeBtn = document.querySelector('.close-btn');
@@ -695,6 +693,53 @@ document.addEventListener('DOMContentLoaded', function() {//Ver los pedido parte
         if (event.target === viewModal) {
             viewModal.style.display = 'none';
         }
+    });
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+});
+
+document.addEventListener('DOMContentLoaded', function () {//Elimina el pedido
+    document.querySelectorAll('.delete-items-btn').forEach(button => {
+        button.addEventListener('click', function () {
+            const row = this.closest('tr');
+            const pedidoId = row.getAttribute('data-id');
+
+            if (pedidoId && confirm('¿Estás seguro de que deseas eliminar este pedido y todas sus partes?')) {
+                fetch('/mecaControl/delete-order/', {
+                    method: 'POST',
+                    body: JSON.stringify({ pedido_id: pedidoId }),
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(data.mensaje);
+                        row.remove();
+                    } else {
+                        alert('Error al eliminar el pedido: ' + data.error);
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            } else {
+                alert('ID del pedido no encontrado.');
+            }
+        });
     });
 
     function getCookie(name) {
